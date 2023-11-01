@@ -78,7 +78,7 @@ if __name__ == "__main__":
     ]
     random.shuffle(prompts)
 
-    timings = []            # total timings
+    timings = []           # total timings
     chars_per_second = []  # tok/sec
 
     t0 = time.perf_counter()
