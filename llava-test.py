@@ -1,6 +1,9 @@
-#TODO: put this into a repo somewhere!
-#TODO: extract model name from path (actually, just okay to pass in whole path as model_name)
-#TODO: document where model files were pulled from
+#
+# llava-test.py
+#
+# Query LLaVA worker N times with a series of prompts (each with image) randomly shuffled each
+# pass.
+# 
 
 import base64
 from io import BytesIO
@@ -127,57 +130,24 @@ if __name__ == "__main__":
     chars_per_second = []  # tok/sec
 
     i = 0
-    while i < 1000:
+    max_count = 500
+    while i < max_count:
         for (image_file, prompt) in prompts:
             image_data = load_image_base64(image_file = image_file)
             response, input_prompt, is_error, timing = run_query(image_data = image_data, prompt = prompt)
-            chars_per_second.append(timing / (len(input_prompt) + len(response)))
+            chars_per_second.append((len(input_prompt) + len(response)) / timing)
             timings.append(timing)
-            print(f"[{image_file}, \"{prompt}\"] -> {'Error' if is_error else ''}{response} ({timing:.2f})")
+            print(f"({i}/{max_count}) [{image_file}, \"{prompt}\"] -> {'Error' if is_error else ''}{response} ({timing:.2f})")
             i += 1
     
     print("\n===\n")
     print("Timing Results:")
-    print(f"  Mean   = {np.mean(timings)} s, {np.mean(chars_per_second)} chars/s")
-    print(f"  Median = {np.median(timings)} s, {np.median(chars_per_second)} char/s")
-    print(f"  90%    = {np.quantile(timings, 0.9)} s, {np.quantile(chars_per_second, 0.9)} chars/s")
-    print(f"  95%    = {np.quantile(timings, 0.95)} s, {np.quantile(chars_per_second, 0.95)} chars/s")
-    print(f"  99%    = {np.quantile(timings, 0.99)} s, {np.quantile(chars_per_second, 0.99)} chars/s")
-    
-    # convo = get_conversation_template(model_name = options.model).copy()
-    # convo.append_message(convo.roles[0], DEFAULT_IMAGE_TOKEN + "Describe this image")
-    # convo.append_message(convo.roles[1], None)
-    # print(f"Prompt: {convo.get_prompt()}")
-    # prompt = convo.get_prompt()
-
-    # image_data = load_image_base64(image_file = "car.jpg")
-
-    # payload = {
-    #     "model": options.model,
-    #     "prompt": prompt,
-    #     "temperature": 0.2,
-    #     "top_p": 0.9,
-    #     "max_new_tokens": min(int(options.max_new_tokens), 1536),
-    #     "stop": convo.sep if convo.sep_style in [SeparatorStyle.SINGLE, SeparatorStyle.MPT] else convo.sep2,
-    #     "images": [ image_data ]
-    # }
-
-    # try:
-    #     # Stream output
-    #     headers = {"User-Agent": "LLaVA Client"}
-    #     response = requests.post("http://localhost:8080" + "/worker_generate_stream",
-    #         headers=headers, json=payload, stream=False, timeout=10)
-    #     for chunk in response.iter_lines(decode_unicode=False, delimiter=b"\0"):
-    #         if chunk:
-    #             data = json.loads(chunk.decode())
-    #             if data["error_code"] == 0:
-    #                 output = data["text"][len(prompt):].strip()
-    #                 print(output)
-    #             else:
-    #                 output = data["text"] + f" (error_code: {data['error_code']})"
-    #                 print(output)
-    #                 break
-    #             #time.sleep(0.03)
-    # except requests.exceptions.RequestException as e:
-    #     print(f"Error: {e}")
+    print(f"  Mean   = {np.mean(timings):.2f} s, {np.mean(chars_per_second):.2f} chars/s")
+    print(f"  Median = {np.median(timings):.2f} s, {np.median(chars_per_second):.2f} char/s")
+    print(f"  1%     = {np.quantile(timings, 0.01):.2f} s, {np.quantile(chars_per_second, 0.01):.2f} chars/s")
+    print(f"  5%     = {np.quantile(timings, 0.05):.2f} s, {np.quantile(chars_per_second, 0.05):.2f} chars/s")
+    print(f"  10%    = {np.quantile(timings, 0.1):.2f} s, {np.quantile(chars_per_second, 0.1):.2f} chars/s")
+    print(f"  90%    = {np.quantile(timings, 0.9):.2f} s, {np.quantile(chars_per_second, 0.9):.2f} chars/s")
+    print(f"  95%    = {np.quantile(timings, 0.95):.2f} s, {np.quantile(chars_per_second, 0.95):.2f} chars/s")
+    print(f"  99%    = {np.quantile(timings, 0.99):.2f} s, {np.quantile(chars_per_second, 0.99):.2f} chars/s")
 
