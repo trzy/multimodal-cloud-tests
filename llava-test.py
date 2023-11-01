@@ -56,8 +56,8 @@ def run_query(image_data: str, prompt: str) -> (str, str, bool, float):
     payload = {
         "model": options.model,
         "prompt": complete_prompt,
-        "temperature": 0.2,
-        "top_p": 0.9,
+        "temperature": 0.8, # should correspond to llama.cpp default
+        "top_p": 0.95,      # llama.cpp default
         "max_new_tokens": min(int(options.max_new_tokens), 1536),
         "stop": convo.sep if convo.sep_style in [SeparatorStyle.SINGLE, SeparatorStyle.MPT] else convo.sep2,
         "images": [ image_data ]
