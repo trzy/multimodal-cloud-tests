@@ -6,6 +6,7 @@
 
 import base64
 import json
+import numpy as np
 import random
 import requests
 import time
