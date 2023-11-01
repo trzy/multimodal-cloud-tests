@@ -26,7 +26,7 @@ def run_query(image_data: str, prompt: str) -> (str, str, bool, float):
     # Create request
     url = f"http://{options.host}:{options.port}/completion"
     params = { 
-        "prompt": f"[img-0]USER: {prompt}\nASSISTANT:",
+        "prompt": f"A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\nUSER: [img-0]{prompt}\nASSISTANT: ",
         "image_data": [
             { "data": image_data, "id": 0 }
         ]
