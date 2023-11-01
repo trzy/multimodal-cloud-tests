@@ -86,9 +86,82 @@ MiB Swap:      0.0 total,      0.0 free,      0.0 used. 927013.3 avail Mem
 
  ```
  Timing Results:
-  Mean   = 3.0080701408772743 s, 0.004171619393473039 chars/s
-  Median = 2.5268811769783497 s, 0.004431846138788665 char/s
-  90%    = 6.960180562734604 s, 0.007535331626831069 chars/s
-  95%    = 9.433468136191356 s, 0.0096238372675579 chars/s
-  99%    = 14.339171928763388 s, 0.011225894604375463 chars/s
- ```
+  Mean   = 2.93 s, 453.72 chars/s
+  Median = 2.45 s, 229.60 char/s
+  1%     = 0.16 s, 93.81 chars/s
+  5%     = 0.17 s, 107.65 chars/s
+  10%    = 0.19 s, 128.73 chars/s
+  90%    = 6.41 s, 1253.40 chars/s
+  95%    = 9.11 s, 1397.22 chars/s
+  99%    = 13.43 s, 1461.03 chars/s
+  ```
+
+## LLaVA via llama.cpp on Runpod
+
+### Configuration
+
+To be consistent with LLaVA, the f16 weights were used from [here](https://huggingface.co/mys/ggml_llava-v1.5-7b/tree/main) for `llava-v1.5-7b`.
+
+llama.cpp was built with CUDA enabled and run like so:
+
+```
+    ./server --mmproj models/llava-1.5-7b/mmproj-model-f16.gguf -m models/llava-1.5-7b/ggml-model-f16.gguf -ngl 99 -t 8
+```
+
+`-ngl 99` moves all of the weight layers to GPU (there are far fewer than 99) and `-t 8` uses 8 threads explicitly in an attempt to make CLIP encoding faster,
+which is currently CPU-bound on x64 and thus very slow (slower than an M1 MacBook -- 50 ms vs 1 ms per image patch) at the time of this writing.
+
+
+### Results
+
+GPU utilization is very spikey. Oscillates between ~50% and ~95%:
+
+```
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 520.56.06    Driver Version: 520.56.06    CUDA Version: 11.8     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA A100 80G...  On   | 00000000:23:00.0 Off |                    0 |
+| N/A   54C    P0   246W / 300W |  14789MiB / 81920MiB |     95%      Default |
+|                               |                      |             Disabled |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
++-----------------------------------------------------------------------------+
+```
+
+CPU and memory:
+
+```
+top - 22:08:02 up 303 days,  2:22,  0 users,  load average: 16.06, 16.29, 20.27
+Tasks:  17 total,   2 running,  15 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  3.5 us,  1.3 sy,  0.0 ni, 95.2 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem : 1031909.+total, 143527.1 free,  95183.5 used, 793199.2 buff/cache
+MiB Swap:      0.0 total,      0.0 free,      0.0 used. 919675.6 avail Mem 
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                                                                                                                       
+  22678 root      20   0   49.8g  16.6g  14.0g R 257.5   1.6  19:48.74 server                                                                                                                                        
+  24265 root      20   0    7856   3588   2996 R   0.3   0.0   0:00.04 top                                                                                                                                           
+      1 root      20   0    1104      4      0 S   0.0   0.0   0:00.25 docker-init                                                                                                                                   
+      7 root      20   0    4352   3288   2984 S   0.0   0.0   0:00.00 start.sh                                                                                                                                      
+     40 root      20   0   10324   1088      0 S   0.0   0.0   0:00.00 nginx                                                                                                                                         
+     41 nobody    20   0   11184   3208   1272 S   0.0   0.0   0:00.00 nginx                                                                                                                                         
+     54 root      20   0   15412   5472   3848 S   0.0   0.0   0:00.02 sshd                                                                                                                                          
+     55 root      20   0    4468   1892   1584 S   0.0   0.0   0:00.00 start.sh                                                                                                                                      
+     60 root      20   0  168440  80768  19344 S   0.0   0.0   0:00.87 jupyter-lab                                                                                                                                   
+     61 root      20   0    2780   1020    928 S   0.0   0.0   0:00.00 sleep                                                                                                                                         
+    188 root      20   0   16660  10516   8420 S   0.0   0.0   0:00.95 sshd                                                                                                                                          
+    213 root      20   0    5036   4048   3424 S   0.0   0.0   0:00.02 bash                                                                                                                                          
+  14313 root      20   0   16660  10484   8404 S   0.0   0.0   0:00.70 sshd                                                                                                                                          
+  14324 root      20   0    5036   4008   3400 S   0.0   0.0   0:00.01 bash                                                                                                                                          
+  14766 root      20   0   16660  10484   8400 S   0.0   0.0   0:00.47 sshd                                                                                                                                          
+  14777 root      20   0    5036   4040   3408 S   0.0   0.0   0:00.04 bash                                                                                                                                          
+  23501 root      20   0   30988  24304  10008 S   0.0   0.0   0:00.44 pytho
+  ```

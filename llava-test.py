@@ -94,6 +94,7 @@ def run_query(image_data: str, prompt: str) -> (str, str, bool, float):
 
     return (output, complete_prompt, error, request_time)
 
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
@@ -129,6 +130,7 @@ if __name__ == "__main__":
     timings = []            # total timings
     chars_per_second = []  # tok/sec
 
+    t0 = time.perf_counter()
     i = 0
     max_count = 500
     while i < max_count:
@@ -139,6 +141,8 @@ if __name__ == "__main__":
             timings.append(timing)
             print(f"({i}/{max_count}) [{image_file}, \"{prompt}\"] -> {'Error' if is_error else ''}{response} ({timing:.2f})")
             i += 1
+    t1 = time.perf_counter()
+    total_time = t1 - t0
     
     print("\n===\n")
     print("Timing Results:")
@@ -150,4 +154,4 @@ if __name__ == "__main__":
     print(f"  90%    = {np.quantile(timings, 0.9):.2f} s, {np.quantile(chars_per_second, 0.9):.2f} chars/s")
     print(f"  95%    = {np.quantile(timings, 0.95):.2f} s, {np.quantile(chars_per_second, 0.95):.2f} chars/s")
     print(f"  99%    = {np.quantile(timings, 0.99):.2f} s, {np.quantile(chars_per_second, 0.99):.2f} chars/s")
-
+    print(f"  Total  = {total_time:.2f} s")
