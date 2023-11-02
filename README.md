@@ -84,17 +84,36 @@ MiB Swap:      0.0 total,      0.0 free,      0.0 used. 927013.3 avail Mem
   19389 root      20   0    7856   3512   2916 R   0.0   0.0   0:00.03 top                                                                                                                                                                               
  ```
 
+First run:
+
  ```
- Timing Results:
-  Mean   = 2.93 s, 453.72 chars/s
-  Median = 2.45 s, 229.60 char/s
-  1%     = 0.16 s, 93.81 chars/s
-  5%     = 0.17 s, 107.65 chars/s
-  10%    = 0.19 s, 128.73 chars/s
-  90%    = 6.41 s, 1253.40 chars/s
-  95%    = 9.11 s, 1397.22 chars/s
-  99%    = 13.43 s, 1461.03 chars/s
-  ```
+Timing Results:
+  Mean   = 3.02 s, 435.65 chars/s
+  Median = 2.54 s, 224.52 chars/s
+  1%     = 0.16 s, 99.28 chars/s
+  5%     = 0.17 s, 120.39 chars/s
+  10%    = 0.19 s, 153.57 chars/s
+  90%    = 6.66 s, 1237.79 chars/s
+  95%    = 9.40 s, 1357.48 chars/s
+  99%    = 13.24 s, 1431.14 chars/s
+  Total  = 1549.60 s
+```
+
+Second run (includes total character count):
+
+```
+Timing Results:
+  Mean   = 2.94 s, 439.98 chars/s
+  Median = 2.48 s, 230.51 chars/s
+  1%     = 0.16 s, 91.98 chars/s
+  5%     = 0.17 s, 123.17 chars/s
+  10%    = 0.19 s, 151.61 chars/s
+  90%    = 6.73 s, 1255.76 chars/s
+  95%    = 8.84 s, 1358.57 chars/s
+  99%    = 11.48 s, 1469.52 chars/s
+  Total  = 1509.42 s
+  Chars  = 303705
+```
 
 ## LLaVA via llama.cpp on Runpod
 
@@ -165,3 +184,39 @@ MiB Swap:      0.0 total,      0.0 free,      0.0 used. 919675.6 avail Mem
   14777 root      20   0    5036   4040   3408 S   0.0   0.0   0:00.04 bash                                                                                                                                          
   23501 root      20   0   30988  24304  10008 S   0.0   0.0   0:00.44 pytho
   ```
+
+Results of first run:
+
+  ```
+Timing Results:
+  Mean   = 2.00 s, 265.69 chars/s
+  Median = 1.77 s, 274.54 chars/s
+  1%     = 0.76 s, 154.32 chars/s
+  5%     = 0.77 s, 191.02 chars/s
+  10%    = 0.80 s, 216.37 chars/s
+  90%    = 3.30 s, 305.51 chars/s
+  95%    = 4.22 s, 311.91 chars/s
+  99%    = 6.88 s, 333.85 chars/s
+  Total  = 1024.91 s
+  ```
+
+Second run (includes total character count, sum of all input and output characters):
+
+```
+Timing Results:
+  Mean   = 2.00 s, 269.83 chars/s
+  Median = 1.79 s, 280.21 chars/s
+  1%     = 0.75 s, 171.42 chars/s
+  5%     = 0.77 s, 203.14 chars/s
+  10%    = 0.79 s, 224.92 chars/s
+  90%    = 3.46 s, 305.02 chars/s
+  95%    = 4.29 s, 312.31 chars/s
+  99%    = 6.09 s, 327.95 chars/s
+  Total  = 1024.42 s
+  Chars  = 266529
+```
+
+These results are a bit confusing to interpret correctly but it appears that llama.cpp wins out. The variance of results for LLaVA is much higher but the median
+for llama.cpp is faster and comparing `total_characters / total_time` seems to indicate that llama.cpp is faster. Note that the number of characters differs
+significantly but not as much when the difference is normalized to total time taken. It appears that llama.cpp has more consistent performance regardless of 
+input/output length.
