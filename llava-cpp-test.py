@@ -100,7 +100,7 @@ if __name__ == "__main__":
     print("\n===\n")
     print("Timing Results:")
     print(f"  Mean   = {np.mean(timings):.2f} s, {np.mean(chars_per_second):.2f} chars/s")
-    print(f"  Median = {np.median(timings):.2f} s, {np.median(chars_per_second):.2f} char/s")
+    print(f"  Median = {np.median(timings):.2f} s, {np.median(chars_per_second):.2f} chars/s")
     print(f"  1%     = {np.quantile(timings, 0.01):.2f} s, {np.quantile(chars_per_second, 0.01):.2f} chars/s")
     print(f"  5%     = {np.quantile(timings, 0.05):.2f} s, {np.quantile(chars_per_second, 0.05):.2f} chars/s")
     print(f"  10%    = {np.quantile(timings, 0.1):.2f} s, {np.quantile(chars_per_second, 0.1):.2f} chars/s")
