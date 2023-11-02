@@ -81,6 +81,7 @@ if __name__ == "__main__":
     timings = []           # total timings
     chars_per_second = []  # tok/sec
 
+    total_chars = 0
     t0 = time.perf_counter()
     i = 0
     max_count = 500
@@ -90,6 +91,7 @@ if __name__ == "__main__":
             response, input_prompt, is_error, timing = run_query(image_data = image_data, prompt = prompt)
             chars_per_second.append((len(input_prompt) + len(response)) / timing)
             timings.append(timing)
+            total_chars += (len(input_prompt) + len(response))
             print(f"({i}/{max_count}) [{image_file}, \"{prompt}\"] -> {'Error' if is_error else ''}{response} ({timing:.2f})")
             i += 1
     t1 = time.perf_counter()
@@ -106,3 +108,4 @@ if __name__ == "__main__":
     print(f"  95%    = {np.quantile(timings, 0.95):.2f} s, {np.quantile(chars_per_second, 0.95):.2f} chars/s")
     print(f"  99%    = {np.quantile(timings, 0.99):.2f} s, {np.quantile(chars_per_second, 0.99):.2f} chars/s")
     print(f"  Total  = {total_time:.2f} s")
+    print(f"  Chars  = {total_chars}")
